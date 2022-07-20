@@ -1,6 +1,7 @@
 # To run on Savio
 
 library(fusionModel)
+library(fst)
 
 scratch.dir = "/global/scratch/users/ckingdon/"
 out.dir = file.path(scratch.dir, "output_fusionACS/RECS-ACS/")  
@@ -8,7 +9,7 @@ out.dir = file.path(scratch.dir, "output_fusionACS/RECS-ACS/")
 data.path = file.path(scratch.dir, "fusionACS_input/RECS-ACS/data.RDS")
 data = readRDS(data.path)
 
-num.cores = 20
+num.cores = 24
 
 #------------- Prepare variables -----------------------------------------------
 
@@ -21,17 +22,18 @@ pred.vars <- unlist(map(c("harmonized.vars", "location.vars", "spatial.vars"), ~
 
 # Get fusion sequence and blocking
 # Can sample 'data' if training dataset is too large/slow
-fsequence <- blockchain(data = slice_sample(data$RECS_2015, n = 10e3),
-                        y = fusion.vars,
-                        x = pred.vars,
-                        delta = 0,  # Prevent blocking
-                        weight = "weight",
-                        cores = num.cores)
+# fsequence <- blockchain(data = slice_sample(data$RECS_2015, n = 10e3),
+#                         y = fusion.vars,
+#                         x = pred.vars,
+#                         delta = 0,  # Prevent blocking
+#                         weight = "weight",
+#                         cores = num.cores)
 
 #------------- Train fusion model ----------------------------------------------
 
 file.fsn <- train(data = data$RECS_2015,
-                  y = fsequence,
+                  # y = fsequence,
+                  y = fusion.vars,
                   x = pred.vars,
                   file = "production/v2/RECS/2015/RECS_2015.fsn",
                   weight = "weight",
