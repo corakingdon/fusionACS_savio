@@ -21,6 +21,7 @@ fusion.vars <- setdiff(names(train.data), c("weight", pred.vars))
 #-----
 
 # Get fusion sequence and blocking
+start = Sys.time()
 fchain <- blockchain(data = train.data,
                      y = fusion.vars,
                      x = pred.vars,
@@ -30,10 +31,12 @@ fchain <- blockchain(data = train.data,
                      nfolds = 5,
                      fraction = min(1, 50e3 / nrow(train.data)),
                      cores = num.cores)
+print(Sys.time() - start)
 
 #-----
 
 # Train fusion model
+start = Sys.time()
 fsn.path <- train(data = train.data,
                   y = fchain,
                   x = pred.vars,
@@ -48,6 +51,7 @@ fsn.path <- train(data = train.data,
                                num_iterations = 5000,
                                learning_rate = 0.05)
 )
+print(Sys.time() - start)
 
 #----
 
@@ -59,11 +63,13 @@ pred.data <- read_fst(file.path(in.dir, "CEI_2015-2019_predict.fst"))
 
 # Fuse multiple implicates to ACS
 # Optimal settings for 'k' and 'max_dist' are unknown at moment -- using default values
+start = Sys.time()
 sim <- fuseM(data = pred.data,
              file = fsn.path,
              k = 10,
              M = 50,
              cores = num.cores)
+print(start - Sys.time())
 
 # Save result as .fst
 fst::write_fst(x = sim,

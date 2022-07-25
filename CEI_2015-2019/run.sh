@@ -5,9 +5,9 @@
 #SBATCH --partition=savio2
 #SBATCH --nodes=1
 #SBATCH --cpus-per-task=24
-#SBATCH --time=00:10:00 
+#SBATCH --time=02:00:00 
 
 module load r
 module load r-packages
 
-R CMD BATCH ~/repos/fusionACS_savio/CEI_2015-2019/CEI_2015-2019_output_SUBSET.R /global/scratch/users/ckingdon/logs/cei_log.Rout
+R CMD BATCH ~/repos/fusionACS_savio/CEI_2015-2019/CEI_2015-2019_output.R /global/scratch/users/ckingdon/logs/cei_log.Rout
