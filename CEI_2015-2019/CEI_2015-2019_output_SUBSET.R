@@ -6,7 +6,7 @@ library(fusionModel)
 scratch.dir = "/global/scratch/users/ckingdon/"
 in.dir = file.path(scratch.dir, "input_fusionACS/CEI_2015-2019/")
 
-out.dir = file.path(scratch.dir, "output_fusionACS/CEI_2015-2019/")
+out.dir = file.path(scratch.dir, "output_fusionACS/CEI_2015-2019_SUBSET/")
 
 num.cores = 1
 
@@ -46,12 +46,7 @@ fsn.path <- train(data = train.data,
                   weight = "weight",
                   nfolds = 0.75, # for smaller/faster run
                   cores = 0,
-                  hyper = list(boosting = "goss",
-                               num_leaves = 2 ^ (4:6) - 1,
-                               min_data_in_leaf = unique(round(pmax(20, nrow(train.data) * 0.0001 * c(1, 5)))),
-                               feature_fraction = 0.8,
-                               num_iterations = 5000,
-                               learning_rate = 0.05)
+                  hyper = NULL # for smaller/faster run
 )
 
 #----
@@ -67,7 +62,7 @@ pred.data <- read_fst(file.path(in.dir, "CEI_2015-2019_predict.fst"))
 sim <- fuseM(data = pred.data[1:5e4, ], # for smaller/faster run
              file = fsn.path,
              k = 10,
-             M = 5, # for smaller/faster run
+             M = 2, # for smaller/faster run
              cores = num.cores)
 
 # Save result as .fst
