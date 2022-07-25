@@ -2,7 +2,8 @@ library(fusionModel)
 library(fst)
 
 #------------- Savio settings
-num.cores = as.numeric(Sys.getenv('SLURM_CPUS_ON_NODE'))
+# num.cores = as.numeric(Sys.getenv('SLURM_CPUS_ON_NODE'))
+num.cores = 4
 scratch.dir = "/global/scratch/users/ckingdon/"
 out.dir = file.path(scratch.dir, "output_fusionACS/RECS-ACS/")
 data.path = file.path(scratch.dir, "fusionACS_input/RECS-ACS/data.RDS")
@@ -36,7 +37,7 @@ file.fsn <- train(data = data$RECS_2015,
                   file = "production/v2/RECS/2015/RECS_2015.fsn",
                   weight = "weight",
                   nfolds = 5,
-                  cores = 4,
+                  cores = num.cores,
                   # hyper = NULL
                   hyper = list(boosting = "gbdt",
                                feature_fraction = 0.8,

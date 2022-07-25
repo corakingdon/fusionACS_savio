@@ -9,7 +9,7 @@ out.dir = file.path(scratch.dir, "output_fusionACS/RECS-ACS/")
 data.path = file.path(scratch.dir, "fusionACS_input/RECS-ACS/data.RDS")
 data = readRDS(data.path)
 
-num.cores = 24
+num.cores = as.numeric(Sys.getenv('SLURM_CPUS_ON_NODE'))
 
 #------------- Prepare variables -----------------------------------------------
 

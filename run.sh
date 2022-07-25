@@ -1,10 +1,13 @@
 #!/bin/bash
 
-#SBATCH --job-name=recs_acs_run
+#SBATCH --job-name=recs_acs_train
 #SBATCH --account=fc_fusionacs
-#SBATCH --partition=savio
-#SBATCH --time=01:00:00 
+#SBATCH --partition=savio2
+#SBATCH --nodes=1
+#SBATCH --cpus-per-task=24
+#SBATCH --time=00:15:00 
 
-Module load r
+module load r
+module load r-packages
 
-R CMD BATCH ~/repos/fusionACS_savio/run.R /global/scratch/users/ckingdon/logs/run_log.Rout
+R CMD BATCH ~/repos/fusionACS_savio/train.R /global/scratch/users/ckingdon/logs/train_log.Rout
