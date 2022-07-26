@@ -69,7 +69,7 @@ sim <- fuseM(data = pred.data,
              k = 10,
              M = 50,
              cores = num.cores)
-print(start - Sys.time())
+print(Sys.time() - start)
 
 # Save result as .fst
 fst::write_fst(x = sim,
