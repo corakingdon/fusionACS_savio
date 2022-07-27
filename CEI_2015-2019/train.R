@@ -19,53 +19,22 @@ fusion.vars <- setdiff(names(train.data), c("weight", pred.vars))
 
 #------------- Train
 
-#------------- Run with 4 cores
-start = Sys.time()
-fsn.path <- train(data = train.data,
-                  y = fusion.vars[1],
-                  x = pred.vars,
-                  file = file.path(out.dir, "CEI_2015-2019_model.fsn"),
-                  weight = "weight",
-                  nfolds = 0.75,
-                  cores = 4,
-                  hyper = list(boosting = "goss",
-                               num_leaves = 2 ^ 5 - 1,
-                               feature_fraction = 0.8,
-                               num_iterations = 1000,
-                               learning_rate = 0.1)
-)
-print(Sys.time() - start)
-
-#------------- Run with 24 cores
-start = Sys.time()
-fsn.path <- train(data = train.data,
-                  y = fusion.vars[1],
-                  x = pred.vars,
-                  file = file.path(out.dir, "CEI_2015-2019_model.fsn"),
-                  weight = "weight",
-                  nfolds = 0.75,
-                  cores = 24,
-                  hyper = list(boosting = "goss",
-                               num_leaves = 2 ^ 5 - 1,
-                               feature_fraction = 0.8,
-                               num_iterations = 1000,
-                               learning_rate = 0.1)
-)
-print(Sys.time() - start)
-
-#------------- Run with 1 core
-start = Sys.time()
-fsn.path <- train(data = train.data,
-                  y = fusion.vars[1],
-                  x = pred.vars,
-                  file = file.path(out.dir, "CEI_2015-2019_model.fsn"),
-                  weight = "weight",
-                  nfolds = 0.75,
-                  cores = 1,
-                  hyper = list(boosting = "goss",
-                               num_leaves = 2 ^ 5 - 1,
-                               feature_fraction = 0.8,
-                               num_iterations = 1000,
-                               learning_rate = 0.1)
-)
-print(Sys.time() - start)
+num.cores = c(1, 4, 8, 16, 24)
+for(ncores in num.cores){
+  start = Sys.time()
+  fsn.path <- train(data = train.data,
+                    y = fusion.vars[1],
+                    x = pred.vars,
+                    file = file.path(out.dir, "CEI_2015-2019_model.fsn"),
+                    weight = "weight",
+                    nfolds = 0.75,
+                    cores = ncores,
+                    hyper = list(boosting = "goss",
+                                 num_leaves = 2 ^ 5 - 1,
+                                 feature_fraction = 0.8,
+                                 num_iterations = 1000,
+                                 learning_rate = 0.1)
+  )
+  print(paste0("Number of cores: ", ncores))
+  print(Sys.time() - start)
+}
