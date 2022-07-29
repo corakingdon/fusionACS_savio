@@ -65,7 +65,7 @@ fsn.path <- train(data = train.data,
                   cores = 0,
                   hyper = list(boosting = "goss",
                                num_leaves = 2 ^ (5) - 1,
-                               min_data_in_leaf = unique(round(pmax(10, length(fsimp) * 0.0005 * c(1)))),
+                               min_data_in_leaf = 20,
                                feature_fraction = 0.8,
                                num_iterations = 1000,
                                learning_rate = 0.05)
