@@ -1,0 +1,8 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+.Rprofile
+fusionACS_savio.Rproj
+renv.lock
+renv/
