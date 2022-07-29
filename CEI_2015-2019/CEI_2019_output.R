@@ -101,7 +101,7 @@ sim <- fuseM(data = pred.data,
              file = fsn.path,
              k = 10,
              M = 50,
-             cores = 3)
+             cores = num.cores)
 print(Sys.time() - start)
 
 # Save 'sim' as .fst
