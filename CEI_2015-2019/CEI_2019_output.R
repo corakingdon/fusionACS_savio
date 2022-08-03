@@ -40,23 +40,23 @@ train.data <- train.data[fsimp, ]
 
 # Identify fusion sequence and blocking strategy
 # Note that 'data' is limited to the first spatial implicate in 'train.data'
-start = Sys.time()
-fchain <- blockchain(data = train.data,
-                     y = fusion.vars,
-                     x = pred.vars,
-                     maxsize = 1,
-                     weight = "weight",
-                     nfolds = 5,
-                     fraction = min(1, 50e3  / length(fsimp)),
-                     cores = num.cores)
-print(Sys.time() - start)
+# start = Sys.time()
+# fchain <- blockchain(data = train.data,
+#                      y = fusion.vars,
+#                      x = pred.vars,
+#                      maxsize = 1,
+#                      weight = "weight",
+#                      nfolds = 5,
+#                      fraction = min(1, 50e3  / length(fsimp)),
+#                      cores = num.cores)
+# print(Sys.time() - start)
 
 #-----
 
 # Train fusion model
 start = Sys.time()
 fsn.path <- train(data = train.data,
-                  y = fchain[1:3],
+                  y = fusion.vars[1:2],
                   x = pred.vars,
                   file = file.path(out.dir, "CEI_2015-2019_2019_model.fsn"),
                   weight = "weight",
@@ -66,7 +66,7 @@ fsn.path <- train(data = train.data,
                                num_leaves = 2 ^ (5) - 1,
                                min_data_in_leaf = 20,
                                feature_fraction = 0.8,
-                               num_iterations = 1000,
+                               num_iterations = 100,
                                learning_rate = 0.05)
 )
 print(Sys.time() - start)
