@@ -5,7 +5,7 @@
 #SBATCH --partition=savio2
 #SBATCH --nodes=1
 #SBATCH --cpus-per-task=24
-#SBATCH --time=01:00:00 
+#SBATCH --time=04:00:00 
 
 module load r
 module load r-packages
