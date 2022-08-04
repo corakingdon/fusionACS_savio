@@ -51,37 +51,37 @@ train.data <- train.data[fsimp, ]
 
 # Identify fusion sequence and blocking strategy
 # Note that 'data' is limited to the first spatial implicate in 'train.data'
-start = Sys.time()
-fchain <- blockchain(data = train.data,
-                     y = fusion.vars,
-                     x = pred.vars,
-                     maxsize = 1,  # Blocking is expensive with semi-continuous variables, so turned off
-                     weight = "weight",
-                     nfolds = 5,
-                     fraction = min(1, 50e3  / length(fsimp)),
-                     cores = num.cores)
-print(Sys.time() - start)
+# start = Sys.time()
+# fchain <- blockchain(data = train.data,
+#                      y = fusion.vars,
+#                      x = pred.vars,
+#                      maxsize = 1,  # Blocking is expensive with semi-continuous variables, so turned off
+#                      weight = "weight",
+#                      nfolds = 5,
+#                      fraction = min(1, 50e3  / length(fsimp)),
+#                      cores = num.cores)
+# print(Sys.time() - start)
 
 #------------------ Train ------------------------------------------------------
 
 # Train fusion model
-start = Sys.time()
-fsn.path <- train(data = train.data,
-                  y = fchain,
-                  x = pred.vars,
-                  file = file.path(out.dir, "CEI_2015-2019_2019_model.fsn"),
-                  weight = "weight",
-                  nfolds = 0.75,
-                  fork = TRUE,
-                  cores = 12,
-                  hyper = list(boosting = "goss",
-                               num_leaves = 2 ^ (5) - 1,
-                               min_data_in_leaf = unique(round(pmax(10, length(fsimp) * 0.0005 * c(1)))),
-                               feature_fraction = 0.8,
-                               num_iterations = 1000,
-                               learning_rate = 0.05)
-)
-print(Sys.time() - start)
+# start = Sys.time()
+# fsn.path <- train(data = train.data,
+#                   y = fchain,
+#                   x = pred.vars,
+#                   file = file.path(out.dir, "CEI_2015-2019_2019_model.fsn"),
+#                   weight = "weight",
+#                   nfolds = 0.75,
+#                   fork = TRUE,
+#                   cores = 12,
+#                   hyper = list(boosting = "goss",
+#                                num_leaves = 2 ^ (5) - 1,
+#                                min_data_in_leaf = unique(round(pmax(10, length(fsimp) * 0.0005 * c(1)))),
+#                                feature_fraction = 0.8,
+#                                num_iterations = 1000,
+#                                learning_rate = 0.05)
+# )
+# print(Sys.time() - start)
 
 # Once train() is complete, reset number of threads allowed in data.table and fst
 setDTthreads(num.cores)
@@ -90,20 +90,20 @@ threads_fst(num.cores)
 #------------------ Fuse - validation ------------------------------------------
 
 # Fuse multiple implicates to training data for internal validation analysis
-start = Sys.time()
-valid <- fuse(data = train.data,
-              file = fsn.path,
-              k = 10,
-              M = 30,
-              ignore_self = TRUE,
-              cores = num.cores)
-print(Sys.time() - start)
-
-# Save 'valid' as .fst
-fst::write_fst(x = valid, path = file.path(out.dir, "CEI_2015-2019_2019_valid.fst"), compress = 100)
-
-# Clean up
-rm(train.data, valid)
+# start = Sys.time()
+# valid <- fuse(data = train.data,
+#               file = fsn.path,
+#               k = 10,
+#               M = 30,
+#               ignore_self = TRUE,
+#               cores = num.cores)
+# print(Sys.time() - start)
+# 
+# # Save 'valid' as .fst
+# fst::write_fst(x = valid, path = file.path(out.dir, "CEI_2015-2019_2019_valid.fst"), compress = 100)
+# 
+# # Clean up
+# rm(train.data, valid)
 
 #------------------ Fuse - simulation ------------------------------------------
 
@@ -117,7 +117,7 @@ sim <- fuse(data = pred.data,
             file = fsn.path,
             k = 10,
             M = 30,
-            cores = num.cores)
+            cores = 12)
 print(Sys.time() - start)
 
 # Save 'sim' as .fst
