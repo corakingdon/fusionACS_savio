@@ -1,13 +1,26 @@
 library(fusionModel)
 
-scratch.dir = "/global/scratch/users/ckingdon/"
-in.dir = file.path(scratch.dir, "input_fusionACS/CEI_2019/")
+local.run = FALSE
 
-out.dir = file.path(scratch.dir, "output_fusionACS/CEI_2019/")
+if(local.run){
+  # Local settings
+  in.dir = out.dir = "fusion/CEI/2015-2019/2019/"
+  num.cores = 3
+}else{
+  # Savio settings
+  scratch.dir = "/global/scratch/users/ckingdon/"
+  in.dir = file.path(scratch.dir, "input_fusionACS/CEI_2019/")
+  out.dir = file.path(scratch.dir, "output_fusionACS/CEI_2019/")
+  num.cores = as.numeric(Sys.getenv('SLURM_CPUS_ON_NODE'))
+}
 
-num.cores = as.numeric(Sys.getenv('SLURM_CPUS_ON_NODE'))
+#------------------------------------------------------------------------------
 
-#-----
+# Turn off data.table and fst multithreading to prevent forking issues
+setDTthreads(1)
+threads_fst(1)
+
+#------------------ Prep the inputs --------------------------------------------
 
 # Load the training data
 train.data <- read_fst(file.path(in.dir, "CEI_2015-2019_2019_train.fst"))
@@ -17,8 +30,6 @@ pred.vars <- names(fst(file.path(in.dir, "CEI_2015-2019_2019_predict.fst")))
 
 # Identify the fusion variables
 fusion.vars <- setdiff(names(train.data), c("weight", pred.vars))
-
-#-----
 
 # Number of spatial implicates in 'train.data'
 nsimp <- 5
@@ -36,7 +47,7 @@ fsimp <- seq(to = nrow(train.data), by = nsimp)
 # Need to test more with multiple implicates
 train.data <- train.data[fsimp, ]
 
-#-----
+#------------------ Blockchain -------------------------------------------------
 
 # Identify fusion sequence and blocking strategy
 # Note that 'data' is limited to the first spatial implicate in 'train.data'
@@ -51,7 +62,7 @@ fchain <- blockchain(data = train.data,
                      cores = num.cores)
 print(Sys.time() - start)
 
-#-----
+#------------------ Train ------------------------------------------------------
 
 # Train fusion model
 start = Sys.time()
@@ -61,6 +72,7 @@ fsn.path <- train(data = train.data,
                   file = file.path(out.dir, "CEI_2015-2019_2019_model.fsn"),
                   weight = "weight",
                   nfolds = 0.75,
+                  fork = TRUE,
                   cores = num.cores,
                   hyper = list(boosting = "goss",
                                num_leaves = 2 ^ (5) - 1,
@@ -71,25 +83,29 @@ fsn.path <- train(data = train.data,
 )
 print(Sys.time() - start)
 
-#----
+# Once train() is complete, reset number of threads allowed in data.table and fst
+setDTthreads(ncores)
+threads_fst(ncores)
+
+#------------------ Fuse - validation ------------------------------------------
 
 # Fuse multiple implicates to training data for internal validation analysis
-# start = Sys.time()
-# valid <- fuse(data = train.data,
-#                file = fsn.path,
-#                k = 10,
-#                M = 30,
-#                ignore_self = TRUE,
-#                cores = num.cores)
-# print(Sys.time() - start)
+start = Sys.time()
+valid <- fuse(data = train.data,
+               file = fsn.path,
+               k = 10,
+               M = 30,
+               ignore_self = TRUE,
+               cores = num.cores)
+print(Sys.time() - start)
 
-# # Save 'valid' as .fst
-# fst::write_fst(x = valid, path = file.path(out.dir, "CEI_2015-2019_2019_valid.fst"), compress = 100)
+# Save 'valid' as .fst
+fst::write_fst(x = valid, path = file.path(out.dir, "CEI_2015-2019_2019_valid.fst"), compress = 100)
 
-# # Clean up
-# rm(train.data, valid)
+# Clean up
+rm(train.data, valid)
 
-#----
+#------------------ Fuse - simulation ------------------------------------------
 
 # Load the prediction data
 pred.data <- read_fst(file.path(in.dir, "CEI_2015-2019_2019_predict.fst"))
