@@ -36,9 +36,9 @@ nsimp <- 5
 
 # 'nsimp' can also be auto-detected but preferable to hard-code based on knowledge of the *_input.R script
 # nsimp <- train.data[fusion.vars] %>%
-#    map(~ rle(.x)$lengths) %>%
-#    unlist() %>%
-#    min()
+#   map(~ rle(.x)$lengths) %>%
+#   unlist() %>%
+#   min()
 
 # Rows in 'train.data' for just the first spatial implicate
 fsimp <- seq(to = nrow(train.data), by = nsimp)
@@ -55,7 +55,7 @@ start = Sys.time()
 fchain <- blockchain(data = train.data,
                      y = fusion.vars,
                      x = pred.vars,
-                     maxsize = 1,
+                     maxsize = 1,  # Blocking is expensive with semi-continuous variables, so turned off
                      weight = "weight",
                      nfolds = 5,
                      fraction = min(1, 50e3  / length(fsimp)),
@@ -76,7 +76,7 @@ fsn.path <- train(data = train.data,
                   cores = num.cores,
                   hyper = list(boosting = "goss",
                                num_leaves = 2 ^ (5) - 1,
-                               min_data_in_leaf = 20,
+                               min_data_in_leaf = unique(round(pmax(10, length(fsimp) * 0.0005 * c(1)))),
                                feature_fraction = 0.8,
                                num_iterations = 1000,
                                learning_rate = 0.05)
@@ -92,11 +92,11 @@ threads_fst(ncores)
 # Fuse multiple implicates to training data for internal validation analysis
 start = Sys.time()
 valid <- fuse(data = train.data,
-               file = fsn.path,
-               k = 10,
-               M = 30,
-               ignore_self = TRUE,
-               cores = num.cores)
+              file = fsn.path,
+              k = 10,
+              M = 30,
+              ignore_self = TRUE,
+              cores = num.cores)
 print(Sys.time() - start)
 
 # Save 'valid' as .fst
@@ -114,10 +114,10 @@ pred.data <- read_fst(file.path(in.dir, "CEI_2015-2019_2019_predict.fst"))
 fsn.path = file.path(out.dir, "CEI_2015-2019_2019_model.fsn")
 start = Sys.time()
 sim <- fuse(data = pred.data,
-             file = fsn.path,
-             k = 10,
-             M = 30,
-             cores = num.cores)
+            file = fsn.path,
+            k = 10,
+            M = 30,
+            cores = num.cores)
 print(Sys.time() - start)
 
 # Save 'sim' as .fst
