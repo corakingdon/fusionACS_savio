@@ -1,27 +1,33 @@
 library(fusionModel)
 
-# Directory in /fusion where input files are located
-dir <- "fusion/CEI/2015-2019/2019/input"
-
-# Number of cores to use
-ncores <- 3
-
 # Number of implicates to generate
-nimps <- 40
+nimps <- 1
 
-# Output files path stub
-out.path <- file.path(sub("input", "output", dir), sub("train.fst$", "", list.files(dir, "train\\.fst$")))
+local.run = FALSE
 
-#-----
+if(local.run){
+  # Local settings
+  
+  # Directory in /fusion where input files are located
+  dir <- "fusion/CEI/2015-2019/2019/input"
 
-# Deprecated code but useful for server runs
+  # Number of cores to use
+  ncores <- 3
 
-# Local settings
-# in.dir <- out.dir <- "fusion/RECS/2015/2015"
+  # Output files path stub
+  out.path <- file.path(sub("input", "output", dir), sub("train.fst$", "", list.files(dir, "train\\.fst$")))
+
+}else{
+  # Savio settings
+  scratch.dir = "/global/scratch/users/ckingdon/"
+  dir = file.path(scratch.dir, "input_fusionACS/CEI_2019/")
+  out.path = file.path(scratch.dir, "output_fusionACS/CEI_2019/")
+  ncores = as.numeric(Sys.getenv('SLURM_CPUS_ON_NODE'))
+}
 
 # Turn off data.table and fst multithreading to prevent forking issues
-# data.table::setDTthreads(1)
-# fst::threads_fst(1)
+data.table::setDTthreads(1)
+fst::threads_fst(1)
 
 #------------------ Load training data from /input --------------------------------------------
 
@@ -56,8 +62,8 @@ fsn.path <- train(data = train.data,
 
 # PERHAPS USEFUL for server runs using forking...
 # Once train() is complete, reset number of threads allowed in data.table and fst
-# data.table::setDTthreads(num.cores)
-# fst::threads_fst(num.cores)
+data.table::setDTthreads(ncores)
+fst::threads_fst(ncores)
 
 # Fuse multiple implicates to training data for internal validation analysis
 valid <- fuse(data = train.data,
