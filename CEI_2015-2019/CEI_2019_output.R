@@ -1,3 +1,5 @@
+# script file from CEI fusion production runs used in July 2021
+
 library(fusionModel)
 
 local.run = FALSE
