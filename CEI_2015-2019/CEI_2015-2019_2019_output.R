@@ -20,8 +20,8 @@ if(local.run){
 }else{
   # Savio settings
   scratch.dir = "/global/scratch/users/ckingdon/"
-  dir = file.path(scratch.dir, "input_fusionACS/CEI_2019/")
-  out.path = file.path(scratch.dir, "output_fusionACS/CEI_2019/")
+  dir = file.path(scratch.dir, "input_fusionACS/CEI_2015-2019/")
+  out.path = file.path(scratch.dir, "output_fusionACS/CEI_2015-2019/")
   ncores = as.numeric(Sys.getenv('SLURM_CPUS_ON_NODE'))
 }
 
@@ -35,8 +35,6 @@ fst::threads_fst(1)
 train.data <- fst::read_fst(file.path(dir, list.files(dir, "train\\.fst$")))
 
 # Load results of prepXY() with fusion and predictor variable details
-print(dir)
-print(file.path(dir, list.files(dir, "prep\\.rds$")))
 prep <- readRDS(file.path(dir, list.files(dir, "prep\\.rds$")))
 
 #------------------ Train fusion model and save to /output ------------------------------------------------------
